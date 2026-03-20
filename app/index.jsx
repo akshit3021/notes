@@ -8,7 +8,7 @@ import {
   SunIcon,
   TextT,
 } from "phosphor-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dimensions,
   Modal,
@@ -19,10 +19,15 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { initDB } from "../db/db";
 
 const { width } = Dimensions.get("window");
 
 export default function Index() {
+  useEffect(() => {
+    initDB();
+  }, []);
+
   const [isDark, setIsDark] = useState(true);
 
   const theme = {
@@ -70,7 +75,7 @@ export default function Index() {
         barStyle={isDark ? "light-content" : "dark-content"}
         backgroundColor={isDark ? "#0f172a" : "#ffffff"}
       />
-      // bg-slate-900" or white
+      {/* bg-slate-900" or white */}
       {/* Header */}
       <View
         className={`mb-5 flex-row items-center justify-between border-b px-5 pb-4 pt-3 shadow-xl ${theme.headerBg} ${theme.border}`}
