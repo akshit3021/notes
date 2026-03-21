@@ -1,15 +1,25 @@
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ArrowLeft,
   DotsThreeOutlineVerticalIcon,
   PushPin,
 } from "phosphor-react-native";
-import { useState } from "react";
-import { Pressable, StatusBar, Text, TextInput, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  Pressable,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import db, { insertNote } from "../db/db";
+import db, { getNoteById, insertNote, updateNote } from "../db/db";
 
-export default function AddTextNote() {
+export default function TextNote() {
+  const { id } = useLocalSearchParams();
+  const noteId = Array.isArray(id) ? id[0] : id;
+
   const router = useRouter();
 
   const [title, setTitle] = useState("");
@@ -17,33 +27,60 @@ export default function AddTextNote() {
   const [pinned, setPinned] = useState(false);
   const [color, setColor] = useState(""); // default
 
+  useEffect(() => {
+    if (noteId) {
+      const note = getNoteById(noteId);
+
+      if (note) {
+        setTitle(note.title);
+        setContent(note.content);
+        setPinned(note.pinned === 1);
+        setColor(note.color);
+      }
+    }
+  }, [noteId]);
+
   const saveNote = () => {
     if (!title && !content) return;
 
     const now = new Date().toISOString();
 
-    const newNote = {
-      id: Date.now().toString(),
-      title,
-      content,
-      createdAt: now,
-      updatedAt: now,
-      color,
-      pinned,
-    };
-
     try {
-      insertNote(newNote);
+      if (noteId) {
+        // ✏️ UPDATE
+        const updatedNote = {
+          id,
+          title,
+          content,
+          updatedAt: now,
+          color,
+          pinned,
+        };
 
-      console.log("✅ Inserted Note:", newNote);
+        updateNote(updatedNote);
+        console.log("✏️ Updated Note:", updatedNote);
+      } else {
+        // ➕ CREATE
+        const newNote = {
+          id: Date.now().toString(),
+          title,
+          content,
+          createdAt: now,
+          updatedAt: now,
+          color,
+          pinned,
+        };
 
-      // fetch all notes to verify
+        insertNote(newNote);
+        console.log("✅ Inserted Note:", newNote);
+      }
+
       const allNotes = db.getAllSync("SELECT * FROM notes");
       console.log("📦 All Notes:", allNotes);
 
       router.back();
     } catch (e) {
-      console.log("❌ Insert error", e);
+      console.log("❌ Error", e);
     }
   };
 
@@ -77,7 +114,7 @@ export default function AddTextNote() {
         </View>
       </View>
 
-      <View className="flex-1 px-5">
+      <ScrollView className="flex-1 px-5">
         {/* Title */}
         <TextInput
           placeholder="Title"
@@ -97,14 +134,16 @@ export default function AddTextNote() {
           textAlignVertical="top"
           className="flex-1 text-base text-slate-200"
         />
-      </View>
+      </ScrollView>
 
       {/* Save */}
       <Pressable
         onPress={saveNote}
         className="mx-5 mb-6 mt-4 items-center rounded-2xl border border-indigo-400 bg-indigo-500 py-3 shadow-xl active:opacity-80"
       >
-        <Text className="text-base font-semibold text-white">Save Note</Text>
+        <Text className="text-base font-semibold text-white">
+          {noteId ? "Update Note" : "Save Note"}
+        </Text>
       </Pressable>
     </SafeAreaView>
   );

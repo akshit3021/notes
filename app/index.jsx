@@ -133,48 +133,61 @@ export default function Index() {
         }}
         renderItem={({ item }) => (
           <View style={{ alignItems: "center" }}>
-            <View
-              style={{ width: width / 2 - 20 }}
-              className={`relative mb-3 max-h-96 overflow-hidden rounded-2xl border p-4 shadow-xl ${theme.noteBg} ${theme.noteBorder}`}
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/text-note",
+                  params: { id: item.id },
+                })
+              }
             >
-              {item.pinned === 1 && (
-                <View
-                  className={`absolute right-2 top-2 flex-row items-center gap-1 rounded-full border px-2 py-1 ${
-                    isDark
-                      ? "border-yellow-400/20 bg-yellow-400/10"
-                      : "border-yellow-300 bg-yellow-100"
-                  }`}
-                >
-                  <PushPin
-                    size={12}
-                    color={isDark ? "#fde047" : "#ca8a04"} // dark vs light
-                    weight="fill"
-                  />
-                  <Text
-                    className={`text-[10px] font-medium ${
-                      isDark ? "text-yellow-300" : "text-yellow-600"
+              <View
+                style={{ width: width / 2 - 20 }}
+                className={`relative mb-3 max-h-96 overflow-hidden rounded-2xl border p-4 shadow-xl ${theme.noteBg} ${theme.noteBorder}`}
+              >
+                {item.pinned === 1 && (
+                  <View
+                    className={`absolute right-2 top-2 flex-row items-center gap-1 rounded-full border px-2 py-1 ${
+                      isDark
+                        ? "border-yellow-400/20 bg-yellow-400/10"
+                        : "border-yellow-300 bg-yellow-100"
                     }`}
                   >
-                    Pinned
-                  </Text>
-                </View>
-              )}
-              <Text className={`mb-1 font-semibold ${theme.title}`}>
-                {item.title}
-              </Text>
+                    <PushPin
+                      size={12}
+                      color={isDark ? "#fde047" : "#eab308"} // dark vs light
+                      weight="fill"
+                    />
+                    <Text
+                      className={`text-[10px] font-medium ${
+                        isDark ? "text-yellow-300" : "text-yellow-500"
+                      }`}
+                    >
+                      Pinned
+                    </Text>
+                  </View>
+                )}
+                <Text className={`mb-1 font-semibold ${theme.title}`}>
+                  {item.title}
+                </Text>
 
-              <Text className={`text-sm ${theme.content}`}>{item.content}</Text>
-            </View>
+                <Text className={`text-sm ${theme.content}`}>
+                  {item.content}
+                </Text>
+              </View>
+            </Pressable>
           </View>
         )}
       />
+
       {/* FAB */}
       <Pressable
         onPress={() => setVisible(true)}
-        className={`absolute bottom-60 right-6 h-16 w-16 items-center justify-center rounded-full border shadow-xl active:opacity-80 ${theme.fabBg} ${theme.fabBorder}`}
+        className={`absolute bottom-20 right-6 h-16 w-16 items-center justify-center rounded-full border shadow-xl active:opacity-80 ${theme.fabBg} ${theme.fabBorder}`}
       >
         <Plus size={30} color="white" weight="bold" />
       </Pressable>
+
       {/* Modal (Google Keep style) */}
       <Modal transparent visible={visible} animationType="fade">
         <Pressable
@@ -194,7 +207,7 @@ export default function Index() {
               <Pressable
                 onPress={() => {
                   setVisible(false);
-                  router.push("/add-text-note");
+                  router.push("/text-note");
                 }}
                 className="items-center gap-2"
               >

@@ -49,3 +49,23 @@ export const getNotes = () => {
     ORDER BY pinned DESC, createdAt DESC
   `);
 };
+
+export const getNoteById = (id) => {
+  return db.getFirstSync(`SELECT * FROM notes WHERE id = ?`, [id]);
+};
+
+export const updateNote = (note) => {
+  db.runSync(
+    `UPDATE notes 
+     SET title = ?, content = ?, updatedAt = ?, color = ?, pinned = ?
+     WHERE id = ?`,
+    [
+      note.title,
+      note.content,
+      note.updatedAt,
+      note.color,
+      note.pinned ? 1 : 0,
+      note.id,
+    ],
+  );
+};
