@@ -42,3 +42,10 @@ export const insertNote = (note) => {
     ],
   );
 };
+
+export const getNotes = () => {
+  return db.getAllSync(`
+    SELECT * FROM notes
+    ORDER BY pinned DESC, createdAt DESC
+  `);
+};

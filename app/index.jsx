@@ -1,14 +1,15 @@
 import MasonryList from "@react-native-seoul/masonry-list";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import {
   MoonIcon,
   NotePencil,
   PencilSimpleLine,
   Plus,
+  PushPin,
   SunIcon,
   TextT,
 } from "phosphor-react-native";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Dimensions,
   Modal,
@@ -19,7 +20,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { initDB } from "../db/db";
+import { getNotes, initDB } from "../db/db";
 
 const { width } = Dimensions.get("window");
 
@@ -27,6 +28,19 @@ export default function Index() {
   useEffect(() => {
     initDB();
   }, []);
+
+  const [notes, setNotes] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const data = getNotes();
+      console.log("📦 Loaded Notes:", data);
+      setNotes(data);
+    }, []),
+  );
+
+  const pinnedNotes = notes.filter((n) => n.pinned === 1);
+  const otherNotes = notes.filter((n) => n.pinned === 0);
 
   const [isDark, setIsDark] = useState(true);
 
@@ -49,25 +63,25 @@ export default function Index() {
   const router = useRouter();
   const [visible, setVisible] = useState(false);
 
-  const notes = [
-    { id: "1", title: "Grocery", content: "Milk\nEggs\nBread\nButter\nCheese" },
-    { id: "2", title: "Ideas", content: "Wallpaper app\nAI notes\nTracker" },
-    {
-      id: "3",
-      title: "Books",
-      content: "Atomic Habits\nDeep Work\nPsychology of Money\nMore reading...",
-    },
-    {
-      id: "4",
-      title: "Workout",
-      content: "Push\nPull\nLegs\nRepeat\nCardio\nStretch\nHydrate",
-    },
-    {
-      id: "5",
-      title: "Weekend",
-      content: "Gym\nCode\nRelax\nMovie\nSleep\nFriends",
-    },
-  ];
+  // const notes = [
+  //   { id: "1", title: "Grocery", content: "Milk\nEggs\nBread\nButter\nCheese" },
+  //   { id: "2", title: "Ideas", content: "Wallpaper app\nAI notes\nTracker" },
+  //   {
+  //     id: "3",
+  //     title: "Books",
+  //     content: "Atomic Habits\nDeep Work\nPsychology of Money\nMore reading...",
+  //   },
+  //   {
+  //     id: "4",
+  //     title: "Workout",
+  //     content: "Push\nPull\nLegs\nRepeat\nCardio\nStretch\nHydrate",
+  //   },
+  //   {
+  //     id: "5",
+  //     title: "Weekend",
+  //     content: "Gym\nCode\nRelax\nMovie\nSleep\nFriends",
+  //   },
+  // ];
 
   return (
     <SafeAreaView className={`flex-1 ${theme.bg}`}>
@@ -106,9 +120,11 @@ export default function Index() {
           )}
         </TouchableOpacity>
       </View>
+
       {/* Masonry List */}
       <MasonryList
-        data={notes}
+        // data={notes}
+        data={[...pinnedNotes, ...otherNotes]}
         keyExtractor={(item) => item.id}
         numColumns={2}
         contentContainerStyle={{
@@ -119,8 +135,30 @@ export default function Index() {
           <View style={{ alignItems: "center" }}>
             <View
               style={{ width: width / 2 - 20 }}
-              className={`mb-3 max-h-96 rounded-2xl border p-4 shadow-xl ${theme.noteBg} ${theme.noteBorder}`}
+              className={`relative mb-3 max-h-96 overflow-hidden rounded-2xl border p-4 shadow-xl ${theme.noteBg} ${theme.noteBorder}`}
             >
+              {item.pinned === 1 && (
+                <View
+                  className={`absolute right-2 top-2 flex-row items-center gap-1 rounded-full border px-2 py-1 ${
+                    isDark
+                      ? "border-yellow-400/20 bg-yellow-400/10"
+                      : "border-yellow-300 bg-yellow-100"
+                  }`}
+                >
+                  <PushPin
+                    size={12}
+                    color={isDark ? "#fde047" : "#ca8a04"} // dark vs light
+                    weight="fill"
+                  />
+                  <Text
+                    className={`text-[10px] font-medium ${
+                      isDark ? "text-yellow-300" : "text-yellow-600"
+                    }`}
+                  >
+                    Pinned
+                  </Text>
+                </View>
+              )}
               <Text className={`mb-1 font-semibold ${theme.title}`}>
                 {item.title}
               </Text>
