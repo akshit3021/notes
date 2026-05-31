@@ -30,7 +30,7 @@ export const initDB = () => {
 export const insertNote = (note) => {
   db.runSync(
     `INSERT INTO notes (id, title, content, createdAt, updatedAt, color, pinned)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [
       note.id,
       note.title,
@@ -46,7 +46,7 @@ export const insertNote = (note) => {
 export const getNotes = () => {
   return db.getAllSync(`
     SELECT * FROM notes
-    ORDER BY pinned DESC, createdAt DESC
+     ORDER BY pinned DESC, createdAt DESC
   `);
 };
 
@@ -57,8 +57,8 @@ export const getNoteById = (id) => {
 export const updateNote = (note) => {
   db.runSync(
     `UPDATE notes 
-     SET title = ?, content = ?, updatedAt = ?, color = ?, pinned = ?
-     WHERE id = ?`,
+      SET title = ?, content = ?, updatedAt = ?, color = ?, pinned = ?
+      WHERE id = ?`,
     [
       note.title,
       note.content,
